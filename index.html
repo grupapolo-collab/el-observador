@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05050f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>EL OBSERVADOR — No todos los niveles quieren que ganes</title>
+<meta name="description" content="Juego de plataformas psicológico: niveles que mienten, un Observador que te conoce y jefes que no se derrotan con fuerza.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-b1">
+<div id="app">
+  <div id="stage">
+    <canvas id="game"></canvas>
+
+    <!-- ======================= HUD ======================= -->
+    <div id="hud">
+      <div class="hud-top">
+        <div class="hud-badge"><span class="k">NIVEL</span><b id="hud-level">01</b></div>
+        <div class="hud-badge" id="hud-block-badge"><span class="k">BLOQUE</span><b id="hud-block">LA INICIACIÓN</b></div>
+        <div class="hud-badge"><span class="k">MUERTES</span><b id="hud-deaths">0</b></div>
+        <div class="hud-badge"><span class="k">CAOS</span><b id="hud-coins">0</b></div>
+        <div class="hud-spacer"></div>
+        <button class="hud-btn" id="btn-help" title="Pedir ayuda (H)">Ayuda</button>
+        <button class="hud-btn" id="btn-restart" title="Reiniciar (R)">↻</button>
+        <button class="hud-btn" id="btn-pause" title="Pausa (Esc)">II</button>
+      </div>
+      <div id="levelbar"><i></i></div>
+    </div>
+
+    <!-- ================== DIÁLOGO OBSERVADOR ================== -->
+    <div id="dialog">
+      <div class="who"><span class="dot"></span><span id="dialog-who">EL OBSERVADOR</span></div>
+      <div class="txt" id="dialog-text"></div>
+    </div>
+
+    <!-- ================== CONTROLES TÁCTILES ================== -->
+    <div id="touch">
+      <div class="tpad">
+        <button class="left"  data-key="left">◀</button>
+        <button class="right" data-key="right">▶</button>
+        <button class="up"    data-key="jump">▲</button>
+      </div>
+      <div class="tright">
+        <button class="tbtn" data-key="jump">SALTO</button>
+        <button class="tbtn small" data-key="help">?</button>
+      </div>
+    </div>
+
+    <div id="toasts"></div>
+
+    <!-- ================== INTERSTITIAL DE NIVEL ================== -->
+    <div id="interstitial" class="hidden">
+      <div class="k" id="inter-k">NIVEL 01</div>
+      <div class="n" id="inter-n">BIENVENIDO</div>
+      <div class="s" id="inter-s"></div>
+      <div class="fam" id="inter-fam"></div>
+      <div class="s" id="inter-hint" style="margin-top:12px; opacity:.75; font-size:11px; letter-spacing:.14em;">PULSA PARA EMPEZAR</div>
+    </div>
+
+    <!-- ================== MENÚ PRINCIPAL ================== -->
+    <div id="screen-menu" class="screen">
+      <h1>El Observador</h1>
+      <h2>No todos los niveles quieren que ganes</h2>
+      <p class="tagline">Un juego de plataformas psicológico, sarcástico e impredecible. Salta, duda, desconfía de los carteles y de la interfaz. El Observador te está mirando.</p>
+      <div class="menu-actions">
+        <button class="btn primary" id="m-play">Continuar<span class="sub" id="m-play-sub">Nivel 1</span></button>
+        <button class="btn" id="m-modes">Modos de juego</button>
+        <button class="btn" id="m-coop">Cooperativo local · 2 jugadores<span class="sub">rondas, ayudas y sabotajes</span></button>
+        <button class="btn" id="m-online">Jugar online<span class="sub">crea una sala y pásale el código (o el enlace) a tu rival · lo ves en tiempo real</span></button>
+        <button class="btn" id="m-shop">Tienda y personaje<span class="sub" id="m-shop-sub"></span></button>
+        <button class="btn" id="m-achv">Logros y perfil</button>
+        <button class="btn ghost" id="m-settings">Ajustes</button>
+      </div>
+      <div class="tiny" id="device-line">Detectando dispositivo…</div>
+      <div class="tiny" style="margin-top:6px; opacity:.7">v4.1 · Acto II (60 niveles) · final falso del 30 · online con salas · El Eco y El Coleccionista · el marketing sigue diciendo 30 niveles</div>
+    </div>
+
+    <!-- ================== MODOS ================== -->
+    <div id="screen-modes" class="screen hidden">
+      <h2>Elige cómo quieres sufrir</h2>
+      <div class="modes">
+        <div class="mode" data-mode="story"><div class="n">Historia</div><div class="d"><b>30 niveles</b> con <b>6 jefes</b>, puertas que mienten y un suelo que no es de fiar. Las trampas cambian en cada intento.</div></div>
+        <div class="mode" data-mode="diablo"><div class="n">El Diablo <span class="tag-newo">nuevo</span></div><div class="d">Estilo <b>Level Devil</b>: el suelo se abre, te empujan, brotan pinchos donde ibas a caer y la puerta huye. <b>Nada se repite.</b></div></div>
+        <div class="mode" data-mode="descenso"><div class="n">El Descenso</div><div class="d">Cada muerte te hace retroceder un nivel. Sin guardado intermedio.</div></div>
+        <div class="mode" data-mode="infinito"><div class="n">Infinito <span class="tag-newo">v2</span></div><div class="d">Trampas que escalan por nivel: suelos que ceden, láseres, pisones y <b>tu sombra persiguiéndote</b>. Jefe cada 10.</div></div>
+        <div class="mode" data-mode="diario"><div class="n">Desafío diario</div><div class="d">Una semilla compartida. El mismo nivel para todos. Hoy.</div></div>
+        <div class="mode locked" data-mode="mirror"><div class="n">Espejo</div><div class="d">Controles invertidos y reglas alteradas. Se desbloquea en el nivel 10.</div></div>
+        <div class="mode locked" data-mode="silencio"><div class="n">Sin Observador</div><div class="d">Sin comentarios, sin pistas, sin compasión. Se desbloquea en el nivel 13.</div></div>
+      </div>
+      <button class="btn ghost" data-back="menu">Volver</button>
+    </div>
+
+    <!-- ================== TIENDA ================== -->
+    <div id="screen-shop" class="screen hidden">
+      <h2>Tienda · <span id="shop-coins">0</span> CAOS</h2>
+      <div class="shop-wrap">
+        <canvas id="shop-prev" width="400" height="472"></canvas>
+        <div class="shop-main">
+          <div class="shop-tabs" id="shop-tabs"></div>
+          <div class="shop-grid" id="shop-grid"></div>
+          <div class="tiny" style="margin-top:8px">Toca para probar · toca otra vez para comprar · lo comprado se equipa al tocarlo</div>
+        </div>
+      </div>
+      <div class="row"><button class="btn" id="shop-random">Aleatorio</button><button class="btn ghost" id="shop-back">Volver</button></div>
+    </div>
+
+    <!-- ================== LOGROS ================== -->
+    <div id="screen-achv" class="screen hidden">
+      <h2>Logros y perfil</h2>
+      <div class="stats" id="profile-stats"></div>
+      <div class="qbox" id="achv-list"></div>
+      <button class="btn ghost" data-back="menu">Volver</button>
+    </div>
+
+    <!-- ================== AJUSTES ================== -->
+    <div id="screen-settings" class="screen hidden">
+      <h2>Ajustes</h2>
+      <div class="setting"><label>Sonido<span class="hint">Efectos sintetizados en tiempo real</span></label><div class="switch" data-set="sound"></div></div>
+      <div class="setting"><label>Música<span class="hint">Banda sonora que cambia según cómo juegas</span></label><div class="switch" data-set="music"></div></div>
+      <div class="setting"><label>Vibración de cámara<span class="hint">Sacudidas al morir y en los jefes</span></label><div class="switch" data-set="shake"></div></div>
+      <div class="setting"><label>Partículas<span class="hint">Desactívalas si va lento</span></label><div class="switch" data-set="particles"></div></div>
+      <div class="setting"><label>Zona segura móvil<span class="hint">Botones más grandes y separados</span></label><div class="switch" data-set="bigButtons"></div></div>
+      <div class="setting"><label>Controles táctiles<span class="hint">Forzar en escritorio (para probar)</span></label><div class="switch" data-set="forceTouch"></div></div>
+      <div class="row" style="margin-top:6px">
+        <button class="btn danger" id="btn-reset">Borrar progreso</button>
+        <button class="btn ghost" data-back="menu">Volver</button>
+      </div>
+      <div class="tiny">EL OBSERVADOR · v4.1 · hecho por FM con 2D, sin dependencias</div>
+    </div>
+
+    <!-- ================== PAUSA ================== -->
+    <div id="screen-pause" class="screen hidden">
+      <h2>Pausa</h2>
+      <p class="tagline" id="pause-quote">Aprovecha para pensar. No va a servirte.</p>
+      <div class="menu-actions">
+        <button class="btn primary" id="p-resume">Continuar</button>
+        <button class="btn" id="p-restart">Reiniciar nivel</button>
+        <button class="btn" id="p-shop">Personaje</button>
+        <button class="btn ghost" id="p-settings">Ajustes</button>
+        <button class="btn ghost" id="p-menu">Salir al menú</button>
+      </div>
+    </div>
+
+    <!-- ================== RESULTADO NIVEL ================== -->
+    <div id="screen-result" class="screen hidden">
+      <div class="k tiny" id="r-k">NIVEL SUPERADO</div>
+      <h2 id="r-title">HAS GANADO</h2>
+      <p class="tagline" id="r-text"></p>
+      <div class="stats" id="r-stats"></div>
+      <div class="tiny" id="r-break"></div>
+      <div class="menu-actions">
+        <button class="btn primary" id="r-next">Siguiente nivel</button>
+        <button class="btn" id="r-shop">Tienda</button>
+        <button class="btn ghost" id="r-replay">Repetir (variante distinta)</button>
+        <button class="btn ghost" id="r-menu">Menú</button>
+      </div>
+    </div>
+
+    <!-- ================== CRÉDITOS / FINAL ================== -->
+    <div id="screen-end" class="screen hidden">
+      <div class="credits" id="end-credits"></div>
+      <button class="btn primary" id="end-continue">Continuar</button>
+    </div>
+  </div>
+
+  <!-- ================== SALA ONLINE (servidor WebSocket propio) ================== -->
+    <div id="screen-online" class="screen hidden">
+      <h2>Jugar online</h2>
+      <div id="ol-home">
+        <p class="ol-row"><input id="ol-name" class="ol-in" maxlength="12" placeholder="Tu nombre" autocomplete="off"></p>
+        <p class="ol-row">Personaje <select id="ol-char" class="ol-sel"></select> Color <select id="ol-color" class="ol-sel"></select></p>
+        <div class="menu-actions" style="margin-top:14px">
+          <button class="btn primary" id="ol-create">Crear sala<span class="sub">te da un código para pasárselo a tu rival</span></button>
+          <p style="margin:10px 0 4px;opacity:.8">— o entra con un código —</p>
+          <p><input id="ol-code-in" class="ol-in ol-code-in" maxlength="5" placeholder="CÓDIGO" autocomplete="off" autocapitalize="characters" spellcheck="false"></p>
+          <button class="btn" id="ol-join-btn">Entrar a la sala</button>
+        </div>
+        <details class="ol-adv"><summary>Servidor</summary>
+          <p style="margin:8px 0 4px;opacity:.75;font-size:12px">Normalmente no hay que tocar nada: si abriste el juego desde su enlace, se usa ese mismo servidor.</p>
+          <input id="ol-server" class="ol-in" style="width:min(340px,86vw);font-size:13px" placeholder="wss://tu-servidor.onrender.com" autocomplete="off" spellcheck="false">
+        </details>
+      </div>
+      <div id="ol-room" class="hidden">
+        <p style="margin:6px 0">Código de la sala</p>
+        <p id="ol-code" class="ol-code">·····</p>
+        <p class="ol-row"><button class="btn ghost" id="ol-copy">Copiar código</button> <button class="btn ghost" id="ol-link">Copiar enlace</button></p>
+        <div id="ol-players" class="ol-players"></div>
+        <div id="ol-cfg-host" class="hidden">
+          <p style="margin:10px 0 6px">Reglas de la partida (las pones tú):</p>
+          <p><select id="ol-mode" class="ol-sel" style="padding:10px">
+            <option value="mixto">MIXTO · variado (recomendado)</option>
+            <option value="coop">COOPERATIVO · solo equipo</option>
+            <option value="versus">VERSUS · carreras y caos</option>
+          </select></p>
+          <button class="btn primary" id="ol-go" disabled>Empezar</button>
+        </div>
+        <div id="ol-cfg-guest" class="hidden"><p id="ol-mode-txt" style="margin:12px 0;opacity:.9"></p><p style="opacity:.75">El anfitrión arranca la partida.</p></div>
+      </div>
+      <p id="ol-status" class="ol-status"></p>
+      <button class="btn ghost" id="ol-back">Volver</button>
+    </div>
+
+  <!-- aviso de orientación -->
+  <div id="rotate">
+    <div class="icon">▭</div>
+    <div>Gira el dispositivo.<br>El Observador prefiere verte en horizontal.</div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/levels2.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/render.js"></script>
+<script src="js/bosses.js"></script>
+<script src="js/engine2.js"></script>
+<script src="js/trolls.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/observe.js"></script>
+<script src="js/music_data.js"></script>
+<script src="js/score.js"></script>
+<script src="js/pets.js"></script>
+<script src="js/illusion.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/coop.js"></script>
+<script src="js/levels3.js"></script>
+<script src="js/bosses3.js"></script>
+<script src="js/act2.js"></script>
+<script src="js/coop-online.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "el-observador",
+  "version": "4.1.0",
+  "private": true,
+  "description": "EL OBSERVADOR · juego + servidor de salas online (un solo servicio)",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "build": "python3 build.py",
+    "test": "node test/coop.js && node test/smoke.js && node test/reach.js && node test/observer.js && node server/test/run.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": { "ws": "^8.17.0" }
+}

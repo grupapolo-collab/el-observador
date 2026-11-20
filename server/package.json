@@ -1,0 +1,14 @@
+{
+  "name": "el-observador-salas",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Servidor de salas (2 jugadores) para EL OBSERVADOR v4.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/run.js"
+  },
+  "dependencies": {
+    "ws": "^8.17.0"
+  }
+}
